@@ -97,6 +97,7 @@ def main():
                         if not os.path.exists(new_folder_name):
                             os.mkdir(new_folder_name)
                         # Copying the file from temporal zone into the persistent zone with timestamp
+                        print(f" Creating a copy of file: {old_name} to --> {new_final_name} \n\n")
                         shutil.copy(old_name, new_final_name)
 
 
