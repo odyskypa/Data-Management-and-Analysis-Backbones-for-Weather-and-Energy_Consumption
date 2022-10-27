@@ -1,2 +1,3 @@
-./landing/persistent/
-./landing/temporal/**
+**/__pycache__/
+landing/persistent/
+landing/temporal/**
