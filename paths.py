@@ -1,7 +1,8 @@
 temporalPath='./landing/temporal/'
 persistentPath='./landing/persistent/'
-dataBasesDir='/Users/anderbarriocampos/Desktop/Databases/' # CHANGE THIS
+dataBasesDir='C:/Users/odyky/Desktop/Databases/' # CHANGE THIS
 formattedDataBasesDir = dataBasesDir + 'formatted/'
 trustedDataBasesDir = dataBasesDir + 'trusted/'
-profilingDir = '/Users/anderbarriocampos/Desktop/profiling/' # CHANGE THIS
+profilingDir = 'C:/Users/odyky/Desktop/profiling/' # CHANGE THIS
 profilingPlotsDir = profilingDir + 'plots/'
+exploitationDatabasesDir = dataBasesDir + 'exploitation/'
