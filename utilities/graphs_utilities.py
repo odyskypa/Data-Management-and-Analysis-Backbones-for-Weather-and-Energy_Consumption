@@ -1,5 +1,6 @@
 import seaborn as sns
 from pylab import savefig
+import pandas as pd
 from matplotlib import pyplot as plt
 from pandas_profiling import ProfileReport
 
@@ -64,3 +65,19 @@ def generateLineplot(df, data_source_name, plotDir):
     #lineplot.fig.suptitle(f"{data_source_name} Lineplot")
     plt.savefig(f"{plotDir}{data_source_name}_lineplot.png", dpi=400)
     plt.clf()        
+
+def generateBoxplot(df, data_source_name, plotDir):
+    """
+        This function generates a boxplots for all the variables of the input dataframe.
+
+        @param:
+            -   df: the dataframe for which we want to generate the pairplot
+            -   data_source_name: the name of the data source (e.g. WEB, NCEI, etc..)
+            -   plotDir: the absolute path of the directory where plots are saved
+        @Output:
+    """
+    for col in df.columns:
+
+        boxplots = sns.boxplot(data=df[col])
+        plt.savefig(f"{plotDir}{data_source_name}{col}_boxplots.png", dpi=400)
+        plt.clf()

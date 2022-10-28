@@ -6,8 +6,8 @@ def getDataframeFrom_trusted(data_source_name, trustedDataBasesDir = trustedData
       Getting the dataframe of a data source from the trusted database.
 
       @param
-        -   DataBasesDir: the absolute path of the directory where the databases are saved
         -   data_source_name: the name of the data source
+        -   trustedDataBasesDir: the absolute path of the directory where the databases are saved
       @Output:
         -   df: the dataframe of the data source from the trusted database
     """
@@ -20,9 +20,24 @@ def getDataframeFrom_trusted(data_source_name, trustedDataBasesDir = trustedData
         print(e)
         con.close()
 
-def createTable (df, table_name, con):
-    con.execute(f'DROP TABLE IF EXISTS {table_name}')
-    con.execute(f'CREATE TABLE {table_name} AS SELECT * FROM {df}')
+def getDataframeFrom_trusted_noNAs(data_source_name, trustedDataBasesDir = trustedDataBasesDir):
+    """
+      Getting the dataframe of a data source from the trusted_noNAs database.
+
+      @param
+        -   data_source_name: the name of the data source
+        -   trustedDataBasesDir: the absolute path of the directory where the databases are saved
+      @Output:
+        -   df: the dataframe of the data source from the trusted_noNAs database
+    """
+    try:
+        con = duckdb.connect(database=f'{trustedDataBasesDir}{data_source_name}_trusted_noNAs.duckdb', read_only=False)
+        df = con.execute(f'SELECT * FROM {data_source_name}').fetchdf()
+        con.close()
+        return df
+    except Exception as e:
+        print(e)
+        con.close()
 
 def getListOfTables(con):
     """
@@ -46,3 +61,43 @@ def getListOfTables(con):
             for table in tuple_of_table:
                     list_of_tables.append(table)
     return list_of_tables
+
+def saveDataframeTo_trusted_noNAs(df, data_source_name, trustedDataBasesDir = trustedDataBasesDir):
+    """
+      Creates a table in the trusted_noNAs database from the input dataframe (df) with name = table_name.
+
+      @param
+        -   df: the dataframe to be saved as a table in the database
+        -   data_source_name: the name of the data source
+        -   trustedDataBasesDir: the absolute path of the directory where the databases are saved
+      @Output:
+    """
+    try:
+        con = duckdb.connect(database=f'{trustedDataBasesDir}{data_source_name}_trusted_noNAs.duckdb', read_only=False)
+        con.execute(f'DROP TABLE IF EXISTS {data_source_name}')
+        df = df
+        con.execute(f'CREATE TABLE {data_source_name} AS SELECT * FROM df')
+        con.close()
+    except Exception as e:
+        print(e)
+        con.close()
+
+def saveDataframeTo_trusted_outliers(df, data_source_name, trustedDataBasesDir = trustedDataBasesDir):
+    """
+      Creates a table in the trusted_outliers database from the input dataframe (df) with name = table_name.
+
+      @param
+        -   df: the outliers dataframe to be saved as a table in the database
+        -   data_source_name: the name of the data source
+        -   trustedDataBasesDir: the absolute path of the directory where the databases are saved
+      @Output:
+    """
+    try:
+        con = duckdb.connect(database=f'{trustedDataBasesDir}{data_source_name}_trusted_outliers.duckdb', read_only=False)
+        con.execute(f'DROP TABLE IF EXISTS {data_source_name}')
+        df = df
+        con.execute(f'CREATE TABLE {data_source_name} AS SELECT * FROM df')
+        con.close()
+    except Exception as e:
+        print(e)
+        con.close()
