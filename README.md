@@ -1,8 +1,10 @@
 # ADSDB PROJECT
 ## Master in Data Science
 ### Universitat Politècnica de Catalunya - Barcelona Tech
-#### Instuctions for running the software
 ##### Ander Barrio Campos and Odysseas Kyparissis
+
+#### Instuctions for running the software
+
 
 1. Initiliazation
     - For installing all the required libraries to your local system before executing the software please run the following command:
