@@ -6,58 +6,37 @@ import duckdb
 import pandas as pd
 import numpy as np
 from functools import reduce
-from paths import dataBasesDir, formattedDataBasesDir, trustedDataBasesDir
+from utilities.db_utilities import getListOfTables
+from utilities.os_utilities import createDirectory
+from paths import formattedDataBasesDir, trustedDataBasesDir
 
 def loadDataFromFormattedToTrustedDatabase():
     """
     Loading data of different data sources into the trusted zone database. 
     Handling of versions of data tables and homogenizing their schema and data for every data source.
-    !!!!!!!!!!!!!!!!!In order to load more data for other data sources, this function must be updated by adding a case for each data source.!!!!!!!!!!!!!!!!!!!!!!!!
-
-    @TODO: !!!!!!!!!!!!!!!!!!!!!!!!!!THIS FUNCTION NEEDS TO BE MORE SIMPLE FOR REPRODUCABILITY!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    In order to load more data for other data sources, this function must be updated by adding a case for each data source.
     
     @param:
-        -    formattedDataBasesDir: the absolute path of the formatted zone's database folder
-        -    data_source_name: the name of the specific data source
     @Output:
     
     """
 
-def main():
-    # Checking if database directory exists, if not it is being created
-    if not os.path.exists(dataBasesDir):
-        os.mkdir(dataBasesDir)
-    if not os.path.exists(trustedDataBasesDir):
-        os.mkdir(trustedDataBasesDir)
-
+def first_step_version_handling_WEB():
+    # WEB merge by year
     """# Version handling for WEB
     ## 1st step of version handling
     ### Merging tables based on their year
     #### In the formatted database table names are as follows:
     #### WEB_2021_ts1, WEB_2021_ts2, WEB_2022_ts1, WEB_20222_ts2
     """
-
-    # WEB merge by year
     try:
         # Establishing connection to the formatted database of the data source and the merged_by_year database, which is the result database
         con = duckdb.connect(database=f'{formattedDataBasesDir}WEB_formatted.duckdb', read_only=False)
         con1 = duckdb.connect(database=f'{formattedDataBasesDir}WEB_merged_by_year.duckdb', read_only=False)
 
-        # Initialization of the list which will contain the names of the tables
-        list_of_tables =[]
+        list_of_tables = getListOfTables(con)
 
-        # Loading a list with the names of all the tables from the formatted zone database
-        con.execute("SHOW TABLES;")
-        list_of_tuples_of_tables = con.fetchall() # The result of this command is a list of tuples
-
-        # Looping through the list of tuples and extracting table names into list_of_tables variable
-        for tuple_of_table in list_of_tuples_of_tables:
-                for table in tuple_of_table:
-                        list_of_tables.append(table)
-
-        # FOR WEB
         # First step for WEB data is to merge all tables from the same year
-        # Second step will be to merge all tables from different years and end up with a single table for the WEB data source
         
         tables_year_list = [item.split('_')[1] for item in list_of_tables] # For every table we save their year
 
@@ -71,7 +50,7 @@ def main():
                 if table.split('_')[1] == year:
                     index_list.append(c)
             map_of_tables_and_years[year] = index_list # In this dictionary now, the indexes of the tables for each year are grouped
-        print("The following dictionary maps table indexes from list_of_tables and years: \n\n")
+        print("\nThe following dictionary maps table indexes from list_of_tables and years: \n")
         print(map_of_tables_and_years)
 
         # Values of the dictionary, contain the indexes of tables from the list_of_tables that have the same year in their title (key)
@@ -86,9 +65,11 @@ def main():
                 df = reduce(lambda df1,df2: pd.merge(df1,df2), list_of_dataframes_from_the_same_year)
             else:
                 df = list_of_dataframes_from_the_same_year[0]
+            
             # Drop duplicates if any
             df.drop_duplicates()
             merged_by_year_table = "WEB_" + key
+            
             # Save table per year in the merged_by_year_database
             con1.execute(f'DROP TABLE IF EXISTS {merged_by_year_table}')
             con1.execute(f'CREATE TABLE {merged_by_year_table} AS SELECT * FROM df')
@@ -99,12 +80,11 @@ def main():
         con.close()
         con1.close()
 
+def second_step_version_handling_WEB():
     """## 2nd step of version handling
     ### Mergining all the tables from different years
     #### In the merged_by_year database table names are as follows:
     #### WEB_2021, WEB_2022
-
-
     """
 
     # Web merge all years into one single table (trusted table)
@@ -113,17 +93,8 @@ def main():
         con = duckdb.connect(database=f'{formattedDataBasesDir}WEB_merged_by_year.duckdb', read_only=False)
         con1 = duckdb.connect(database=f'{formattedDataBasesDir}WEB_merged_final.duckdb', read_only=False)
 
-        # Initialization of the list which will contain the names of the tables
-        list_of_tables =[]
+        list_of_tables = getListOfTables(con)
 
-        # Loading a list with the names of all the tables from the formatted zone database
-        con.execute("SHOW TABLES;")
-        list_of_tuples_of_tables = con.fetchall() # The result of this command is a list of tuples
-
-        # Looping through the list of tuples and extracting table names into list_of_tables variable
-        for tuple_of_table in list_of_tuples_of_tables:
-                for table in tuple_of_table:
-                        list_of_tables.append(table)
         list_of_dfs =[]
         for table in list_of_tables:
             df = con.execute(f'SELECT * FROM {table}').fetchdf()
@@ -140,9 +111,10 @@ def main():
         con.close()
         con1.close()
 
+def third_step_version_handling_WEB():
     """## 3rd step of version handling
     ### Removing redundant columns from the WEB merged_final database
-    ### Calculating the mean of same measures coming from different versions of the data
+    ### Calculating the mean of some measures coming from different versions of the data
     #### In the merged_final database table name is as follows:
     #### WEB
 
@@ -174,7 +146,7 @@ def main():
                     double_col_list.append(col)
             double_cols_idx[double_col] = double_col_list
 
-        print("The following dictionary maps the index of columns that contain data from the same year but different data versions: \n\n")
+        print("\nThe following dictionary maps the index of columns that contain data from the same year but different data versions: \n")
         print(double_cols_idx)
         
         for key,values in double_cols_idx.items(): # For every duplicate column calculate its mean, save it to the df in a new column and drop the old ones.
@@ -193,6 +165,7 @@ def main():
         con.close()
         con1.close()
 
+def first_step_version_handling_NCEI():
     """# Version handling for NCEI
     ## 1st step of version handling - NCEI
     ### Merging tables based on same year and stationID
@@ -207,17 +180,7 @@ def main():
         con = duckdb.connect(database=f'{formattedDataBasesDir}NCEI_formatted.duckdb', read_only=False)
         con1 = duckdb.connect(database=f'{formattedDataBasesDir}NCEI_merged_by_year_and_station_ID.duckdb', read_only=False)
 
-        # Initialization of the list which will contain the names of the tables
-        list_of_tables =[]
-
-        # Loading a list with the names of all the tables from the formatted zone database
-        con.execute("SHOW TABLES;")
-        list_of_tuples_of_tables = con.fetchall() # The result of this command is a list of tuples
-
-        # Looping through the list of tuples and extracting table names into list_of_tables variable
-        for tuple_of_table in list_of_tuples_of_tables:
-                for table in tuple_of_table:
-                        list_of_tables.append(table)
+        list_of_tables = getListOfTables(con)
 
         # FOR NCEI
         # First step for WEB data is to merge all tables from the same year
@@ -240,7 +203,7 @@ def main():
                     if table_year == year and table_station_ID == station_ID:
                         index_list.append(c)
                 map_of_tables_and_years_station_ID[year + '_' + station_ID] = index_list # In this dictionary now, the indexes of the tables for each year are grouped
-        print("The following dictionary maps table indexes from list_of_tables and years: \n\n")
+        print("\nThe following dictionary maps table indexes from list_of_tables and years: \n")
         print(map_of_tables_and_years_station_ID)
 
 
@@ -270,6 +233,7 @@ def main():
         con.close()
         con1.close()
 
+def second_step_version_handling_NCEI():
     """## 2nd step of version handling - NCEI
     ### Merging tables based on differen years but same station_ID
     #### In the merged_by_year_and_station_ID database table names are as follows:
@@ -282,17 +246,7 @@ def main():
         con = duckdb.connect(database=f'{formattedDataBasesDir}NCEI_merged_by_year_and_station_ID.duckdb', read_only=False)
         con1 = duckdb.connect(database=f'{formattedDataBasesDir}NCEI_merged_final.duckdb', read_only=False)
 
-        # Initialization of the list which will contain the names of the tables
-        list_of_tables =[]
-
-        # Loading a list with the names of all the tables from the formatted zone database
-        con.execute("SHOW TABLES;")
-        list_of_tuples_of_tables = con.fetchall() # The result of this command is a list of tuples
-
-        # Looping through the list of tuples and extracting table names into list_of_tables variable
-        for tuple_of_table in list_of_tuples_of_tables:
-                for table in tuple_of_table:
-                        list_of_tables.append(table)
+        list_of_tables = getListOfTables(con)
 
         # FOR NCEI
         # First step for WEB data is to merge all tables from the same year
@@ -312,7 +266,7 @@ def main():
                 if table.split('_')[2] == station_ID:
                     index_list.append(c)
             map_of_tables_and_station_IDs[station_ID] = index_list # In this dictionary now, the indexes of the tables for each station ID are grouped
-        print("The following dictionary maps table indexes from list_of_tables and station IDs: \n\n")
+        print("\nThe following dictionary maps table indexes from list_of_tables and station IDs: \n")
         print(map_of_tables_and_station_IDs)
 
         # Values of the dictionary, contain the indexes of tables from the list_of_tables that have the same station ID in their title (key)
@@ -337,6 +291,7 @@ def main():
         con.close()
         con1.close()
 
+def third_step_version_handling_NCEI():
     """## 3rd step of version handling - NCEI
     ### Merging all tables into a single table
     #### In the NCEI_merged_final database table names are as follows:
@@ -349,17 +304,8 @@ def main():
         con = duckdb.connect(database=f'{formattedDataBasesDir}NCEI_merged_final.duckdb', read_only=False)
         con1 = duckdb.connect(database=f'{trustedDataBasesDir}NCEI_trusted_with_extreme_values.duckdb', read_only=False)
 
-        # Initialization of the list which will contain the names of the tables
-        list_of_tables =[]
-
-        # Loading a list with the names of all the tables from the formatted zone database
-        con.execute("SHOW TABLES;")
-        list_of_tuples_of_tables = con.fetchall() # The result of this command is a list of tuples
-
-        # Looping through the list of tuples and extracting table names into list_of_tables variable
-        for tuple_of_table in list_of_tuples_of_tables:
-                for table in tuple_of_table:
-                        list_of_tables.append(table)
+        list_of_tables = getListOfTables(con)
+        
         # Getting all tables of all stations as dataframes and appending them to a list
         list_of_dfs =[]
         for table in list_of_tables:
@@ -378,6 +324,17 @@ def main():
     except:
         con.close()
         con1.close()
+
+def main():
+    
+    # Creating trusted database directory
+    createDirectory(trustedDataBasesDir)
+    first_step_version_handling_WEB() # Generate WEB_merged_by_year.duckdb in the formatted zone
+    second_step_version_handling_WEB() # Generate WEB_merged_final.duckdb in the formatted zone
+    third_step_version_handling_WEB() # Generate WEB_trusted.duckdb in the trusted zone
+    first_step_version_handling_NCEI() # Generate NCEI_merged_by_year_and_station_ID.duckdb in the formatted zone
+    second_step_version_handling_NCEI() # Generate NCEI_merged_final.duckdb in the formatted zone
+    third_step_version_handling_NCEI() # Generate NCEI_trusted_with_extreme_values.duckdb in the trusted zone
 
 if __name__ == "__main__":
     main()
