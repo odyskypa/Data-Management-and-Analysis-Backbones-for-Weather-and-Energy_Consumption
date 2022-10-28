@@ -4,6 +4,8 @@
 #### Instuctions for running the software
 
 1. Initiliazation
+    - For installing all the required libraries to your local system before executing the software please run the following command:
+        - pip install -r requirements.txt
     - For running the software for the **first time**, inside "landing/temporal" folder create a folder for each data source and put inside the data files.
     - For **uploading new data source versions** go to "landing/temporal" folder and inside the folder of the specific data source add the new data files.
     - Before moving on to step 2, make sure to change the paths in the "paths.py" file in the main folder of the project. Change only the paths where the indication "# CHANGE THIS" exists.

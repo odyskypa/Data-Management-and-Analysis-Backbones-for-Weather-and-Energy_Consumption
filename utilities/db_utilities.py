@@ -1,5 +1,5 @@
 import duckdb
-from paths import trustedDataBasesDir
+from paths import trustedDataBasesDir, exploitationDatabasesDir
 
 def getDataframeFrom_trusted(data_source_name, trustedDataBasesDir = trustedDataBasesDir):
     """
@@ -64,7 +64,7 @@ def getListOfTables(con):
 
 def saveDataframeTo_trusted_noNAs(df, data_source_name, trustedDataBasesDir = trustedDataBasesDir):
     """
-      Creates a table in the trusted_noNAs database from the input dataframe (df) with name = table_name.
+      Creates a table in the trusted_noNAs database from the input dataframe (df) with name = data_source_name.
 
       @param
         -   df: the dataframe to be saved as a table in the database
@@ -84,7 +84,7 @@ def saveDataframeTo_trusted_noNAs(df, data_source_name, trustedDataBasesDir = tr
 
 def saveDataframeTo_trusted_outliers(df, data_source_name, trustedDataBasesDir = trustedDataBasesDir):
     """
-      Creates a table in the trusted_outliers database from the input dataframe (df) with name = table_name.
+      Creates a table in the trusted_outliers database from the input dataframe (df) with name = data_source_name.
 
       @param
         -   df: the outliers dataframe to be saved as a table in the database
@@ -98,6 +98,48 @@ def saveDataframeTo_trusted_outliers(df, data_source_name, trustedDataBasesDir =
         df = df
         con.execute(f'CREATE TABLE {data_source_name} AS SELECT * FROM df')
         con.close()
+    except Exception as e:
+        print(e)
+        con.close()
+
+def saveDataframeTo_exploitation_year_and_country(df, data_source_name, exploitationDatabasesDir = exploitationDatabasesDir):
+    """
+      Creates a table in the _exploitation_year_and_country database from the input dataframe (df) with name = data_source_name.
+
+      @param
+        -   df: the dataframe to be saved as a table in the database
+        -   data_source_name: the name of the data source
+        -   exploitationDatabasesDir: the absolute path of the directory where the databases are saved
+      @Output:
+    """
+    try:
+        con = duckdb.connect(database=f'{exploitationDatabasesDir}{data_source_name}_exploitation_year_and_country.duckdb', read_only=False)
+        con.execute(f'DROP TABLE IF EXISTS {data_source_name}')
+        df = df
+        con.execute(f'CREATE TABLE {data_source_name} AS SELECT * FROM df')
+        con.close()
+    except Exception as e:
+        print(e)
+        con.close()
+
+def saveDataframeTo_exploitation(df, data_source_name, exploitationDatabasesDir = exploitationDatabasesDir):
+    """
+      Creates a table in the _exploitation database from the input dataframe (df) with name = data_source_name.
+
+      @param
+        -   df: the dataframe to be saved as a table in the database
+        -   data_source_name: the name of the data source
+        -   exploitationDatabasesDir: the absolute path of the directory where the databases are saved
+      @Output:
+    """
+    try:
+        con = duckdb.connect(database=f'{exploitationDatabasesDir}{data_source_name}exploitation.duckdb', read_only=False)
+        con.execute(f'DROP TABLE IF EXISTS {data_source_name}')
+        df = df
+        table = "VIEW"
+        con.execute(f'CREATE TABLE {table} AS SELECT * FROM df')
+        con.close()
+
     except Exception as e:
         print(e)
         con.close()
