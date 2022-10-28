@@ -17,7 +17,7 @@ def  main():
     s5_data_profiling.main()
     s6_NAs_imputation.main()
     s7_outlier_handling.main()
-    s8_data_quality_tasks.main()
+    #s8_data_quality_tasks.main()
     s9_trusted_zone_to_explotation_zone.main()
     #databases_structure.diagnosis()
 
