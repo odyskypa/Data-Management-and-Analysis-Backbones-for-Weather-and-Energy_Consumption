@@ -5,7 +5,7 @@
 from utilities.graphs_utilities import *
 from utilities.os_utilities import *
 from utilities.db_utilities import *
-from paths import temporalPath, trustedDataBasesDir, profilingDir, profilingPlotsDir
+from paths import temporalPath, profilingDir, profilingPlotsDir
 
 def main():
     """# Data Profiling
@@ -28,7 +28,7 @@ def main():
 
         print(f"Profile generation for {data_source_name} data source")
 
-        df = getDataframeFrom_trusted(trustedDataBasesDir, data_source_name)
+        df = getDataframeFrom_trusted(data_source_name)
 
         if data_source_name == "NCEI": # NEEDS to move from here
             df['STATION'] = df.STATION.astype('category')

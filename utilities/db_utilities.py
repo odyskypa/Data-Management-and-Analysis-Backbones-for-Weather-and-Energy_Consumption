@@ -1,6 +1,7 @@
 import duckdb
+from paths import trustedDataBasesDir
 
-def getDataframeFrom_trusted(DataBasesDir, data_source_name):
+def getDataframeFrom_trusted(data_source_name, trustedDataBasesDir = trustedDataBasesDir):
     """
       Getting the dataframe of a data source from the trusted database.
 
@@ -11,13 +12,17 @@ def getDataframeFrom_trusted(DataBasesDir, data_source_name):
         -   df: the dataframe of the data source from the trusted database
     """
     try:
-        con = duckdb.connect(database=f'{DataBasesDir}{data_source_name}_trusted.duckdb', read_only=False)
+        con = duckdb.connect(database=f'{trustedDataBasesDir}{data_source_name}_trusted.duckdb', read_only=False)
         df = con.execute(f'SELECT * FROM {data_source_name}').fetchdf()
         con.close()
         return df
     except Exception as e:
         print(e)
         con.close()
+
+def createTable (df, table_name, con):
+    con.execute(f'DROP TABLE IF EXISTS {table_name}')
+    con.execute(f'CREATE TABLE {table_name} AS SELECT * FROM {df}')
 
 def getListOfTables(con):
     """
