@@ -122,21 +122,20 @@ def saveDataframeTo_exploitation_year_and_country(df, data_source_name, exploita
         print(e)
         con.close()
 
-def saveDataframeTo_exploitation(df, data_source_name, exploitationDatabasesDir = exploitationDatabasesDir):
+def saveDataframeTo_exploitation(df, exploitationDatabasesDir = exploitationDatabasesDir):
     """
-      Creates a table in the _exploitation database from the input dataframe (df) with name = data_source_name.
+      Creates a table in the _exploitation database from the input dataframe (df) with name = VIEW.
 
       @param
         -   df: the dataframe to be saved as a table in the database
-        -   data_source_name: the name of the data source
         -   exploitationDatabasesDir: the absolute path of the directory where the databases are saved
       @Output:
     """
     try:
-        con = duckdb.connect(database=f'{exploitationDatabasesDir}{data_source_name}exploitation.duckdb', read_only=False)
-        con.execute(f'DROP TABLE IF EXISTS {data_source_name}')
-        df = df
+        con = duckdb.connect(database=f'{exploitationDatabasesDir}exploitation.duckdb', read_only=False)
         table = "VIEW"
+        con.execute(f'DROP TABLE IF EXISTS {table}')
+        df = df
         con.execute(f'CREATE TABLE {table} AS SELECT * FROM df')
         con.close()
 
