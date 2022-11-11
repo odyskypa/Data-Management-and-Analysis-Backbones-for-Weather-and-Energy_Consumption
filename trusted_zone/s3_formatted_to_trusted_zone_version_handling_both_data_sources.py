@@ -99,7 +99,7 @@ def second_step_version_handling_WEB():
         for table in list_of_tables:
             df = con.execute(f'SELECT * FROM {table}').fetchdf()
             list_of_dfs.append(df)
-        df = reduce(lambda df1,df2: pd.merge(df1,df2, on=["Country", "Product", "Flow"], suffixes=(f"_{str(int(df1.columns[-2]) + 2)}",f"_{str(int(df2.columns[-2]) + 2)}")), list_of_dfs) 
+        df = reduce(lambda df1,df2: pd.merge(df1,df2, on=["Country", "Product", "Flow"], suffixes=(f"_{str(int(float(df1.columns[-2])) + 2)}",f"_{str(int(float(df2.columns[-2])) + 2)}")), list_of_dfs) 
         df.drop_duplicates()
         merged_final_table = "WEB"
         con1.execute(f'DROP TABLE IF EXISTS {merged_final_table}')
@@ -107,7 +107,8 @@ def second_step_version_handling_WEB():
 
         con.close()
         con1.close()
-    except:
+    except Exception as e:
+        print(e)
         con.close()
         con1.close()
 
