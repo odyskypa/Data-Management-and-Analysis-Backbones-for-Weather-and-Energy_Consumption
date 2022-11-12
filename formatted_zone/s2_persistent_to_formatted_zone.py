@@ -84,7 +84,7 @@ def main ():
     # Creating a list with the abbreviations of countries for which we want to mine data from the NCEI dataset
     # By adding new countries abbreviations here data for those countries will be saved in the formatted database as well
     # We will start only with Belgium (BE).
-    countries_abbreviations = ["BE"] 
+    countries_abbreviations = ["BE", "JA"] 
 
     # Creating one table in the appropriate formatted database for each data source version 
     for data_source_name in data_sources_names:    
