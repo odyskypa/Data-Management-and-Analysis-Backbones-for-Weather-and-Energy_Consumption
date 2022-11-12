@@ -37,7 +37,7 @@ def outlier_detection(df, data_source_name, plotDir):
     IQR = Q3 - Q1
 
     # Filter the dataset with the IQR
-    IQR_outliers = numeric_df[((numeric_df < (Q1 - 1.5 * IQR)) |(numeric_df > (Q3 + 1.5 * IQR))).any(axis=1)]
+    IQR_outliers = df[((numeric_df < (Q1 - 1.5 * IQR)) |(numeric_df > (Q3 + 1.5 * IQR))).any(axis=1)]
     print(IQR_outliers.head)
     return IQR_outliers
 
