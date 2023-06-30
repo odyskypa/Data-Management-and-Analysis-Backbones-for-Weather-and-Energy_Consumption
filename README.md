@@ -1,12 +1,11 @@
 # ADSDB PROJECT
-## Project of Algorithms Data Structures and Databases (ADSDB) Course for Master in Data Science Program of Universitat Politècnica de Catalunya (UPC)
-## Master in Data Science
-### Universitat Politècnica de Catalunya - Barcelona Tech
-##### Ander Barrio Campos and Odysseas Kyparissis
+Project of Algorithms Data Structures and Databases (ADSDB) Course for Master in Data Science Program of Universitat Politècnica de Catalunya (UPC)
+Master in Data Science
+Universitat Politècnica de Catalunya - Barcelona Tech
+Ander Barrio Campos and Odysseas Kyparissis
+***
 
-#### Instuctions for running the software
-
-
+## Instuctions for running the software
 1. Initiliazation
     - For installing all the required libraries to your local system before executing the software please run the following command:
         - pip install -r requirements.txt
