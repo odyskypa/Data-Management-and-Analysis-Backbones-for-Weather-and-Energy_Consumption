@@ -1,7 +1,8 @@
 # ADSDB PROJECT
 Project of Algorithms Data Structures and Databases (ADSDB) Course for Master in Data Science Program of Universitat Politècnica de Catalunya (UPC)
-Master in Data Science
-Universitat Politècnica de Catalunya - Barcelona Tech
+
+Master in Data Science, Universitat Politècnica de Catalunya - Barcelona Tech
+
 Ander Barrio Campos and Odysseas Kyparissis
 ***
 
